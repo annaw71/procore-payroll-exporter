@@ -106,22 +106,21 @@ if "procore_access_token" in st.session_state:
             procore_access_token=st.session_state["procore_access_token"],
         )
 
-        if not companies:
-            st.warning("No companies found for this Procore account.")
+        target_company_id = int(st.secrets["PROCORE_COMPANY_ID"])
 
-        else:
-            company = companies[0]
+        company = next(
+            company
+            for company in companies
+            if company["id"] == target_company_id
+        )
 
-            company_name = company["name"]
-            company_id = company["id"]
+    if company is None:
+        st.error("Your Procore account does not have access to the configured company.")
+        st.stop()
 
-            st.session_state["company_id"] = company_id
+    st.session_state["company_id"] = company["id"]
 
-            st.write(f"Company: {company_name}")
-
-    except Exception as exc:
-        st.error("Could not load companies.")
-        st.code(str(exc))
+    st.write(f"Company: {company['name']}")
 
 # ============================================================
 # 3. PAY PERIOD
