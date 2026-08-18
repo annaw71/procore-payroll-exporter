@@ -62,7 +62,7 @@ elif code and "procore_access_token" not in st.session_state:
     if token_response.ok:
         tokens = token_response.json()
 
-        st.session_state["procore_access_token"] = tokens["access_token"]
+        st.session_state["procore_access_token"] = tokens["procore_access_token"]
         st.session_state["procore_refresh_token"] = tokens.get("refresh_token")
 
         st.success("Procore connnection established successfully!")
@@ -188,7 +188,7 @@ with forward_col:
 # 3. COMPANY
 # ============================================================
 
-if "access_token" in st.session_state:
+if "procore_access_token" in st.session_state:
     st.divider()
 
     st.subheader("3. Choose Procore Company")
@@ -196,7 +196,7 @@ if "access_token" in st.session_state:
     try:
         companies = get_companies(
             api_url=api_url,
-            access_token=st.session_state["access_token"],
+            procore_access_token=st.session_state["procore_access_token"],
         )
 
         company_options = {company["name"]: company["id"] for company in companies}
@@ -221,14 +221,14 @@ if "access_token" in st.session_state:
 # ============================================================
 
 if (
-    "access_token" in st.session_state
+    "procore_access_token" in st.session_state
     and "company_id" in st.session_state
     and "projects" not in st.session_state
 ):
     try:
         projects = get_all_projects(
             api_url=api_url,
-            access_token=st.session_state["access_token"],
+            procore_access_token=st.session_state["procore_access_token"],
             company_id=st.session_state["company_id"],
         )
 
@@ -243,7 +243,7 @@ if (
 # ============================================================
 
 if (
-    "access_token" in st.session_state
+    "procore_access_token" in st.session_state
     and "company_id" in st.session_state
     and "projects" in st.session_state
 ):
@@ -260,7 +260,7 @@ if (
                 failed_projects,
             ) = get_timecards(
                 api_url=api_url,
-                access_token=st.session_state["access_token"],
+                procore_access_token=st.session_state["procore_access_token"],
                 company_id=st.session_state["company_id"],
                 projects=st.session_state["projects"],
                 start_date=start_date,
