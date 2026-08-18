@@ -100,30 +100,25 @@ else:
 
 if "procore_access_token" in st.session_state:
 
-    try:
-        companies = get_companies(
-            api_url=api_url,
-            procore_access_token=st.session_state["procore_access_token"],
-        )
+    companies = get_companies(
+        api_url=api_url,
+        procore_access_token=st.session_state["procore_access_token"],
+    )
 
-        target_company_id = int(st.secrets["PROCORE_COMPANY_ID"])
+    target_company_id = int(st.secrets["PROCORE_COMPANY_ID"])
 
-        company = next(
-            (
-                company
-                for company in companies
-                if company["id"] == target_company_id
-            ),
-            None,
-        )
+    company = next(
+        (company for company in companies if company["id"] == target_company_id),
+        None,
+    )
 
-        if company is None:
-            st.error("Your Procore account does not have access to the configured company.")
-            st.stop()
+    if company is None:
+        st.error("Your Procore account does not have access to the configured company.")
+        st.stop()
 
-        st.session_state["company_id"] = company["id"]
+    st.session_state["company_id"] = company["id"]
 
-        st.write(f"Company: {company['name']}")
+    st.write(f"Company: {company['name']}")
 
 # ============================================================
 # 3. PAY PERIOD
