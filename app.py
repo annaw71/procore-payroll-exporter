@@ -24,20 +24,6 @@ from sage_formatter import (
 # CONFIGURATION
 # ============================================================
 
-if not st.user.is_logged_in:
-    st.title("Procore Payroll Exporter")
-    st.write("Please sign in with your company account")
-
-    if st.button("Sign in"):
-        st.login("microsoft")
-
-    st.stop()
-
-st.write(f"Signed in as: {st.user.name}")
-
-if st.button("Sign out"):
-    st.logout()
-
 st.title("Procore Payroll Exporter")
 
 st.write(
