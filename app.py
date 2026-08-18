@@ -227,7 +227,7 @@ if (
     try:
         projects = get_all_projects(
             api_url=api_url,
-            procore_access_token=st.session_state["procore_access_token"],
+            access_token=st.session_state["procore_access_token"],
             company_id=st.session_state["company_id"],
         )
 
