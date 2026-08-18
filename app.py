@@ -195,7 +195,7 @@ if "procore_access_token" in st.session_state:
     try:
         companies = get_companies(
             api_url=api_url,
-            procore_access_token=st.session_state["procore_access_token"],
+            access_token=st.session_state["procore_access_token"],
         )
 
         company_options = {company["name"]: company["id"] for company in companies}
