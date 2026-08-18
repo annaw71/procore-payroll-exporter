@@ -30,10 +30,15 @@ from sage_formatter import (
 
 st.title("Procore Payroll Exporter")
 
-st.write(
-    "Pull Procore timesheet data for a pay period "
-    "and format it for Sage 100 Contractor."
-)
+st.caption("Procore → Sage 100 Contractor")
+
+if st.user.is_logged_in:
+    st.write(f"Signed in as: {st.user.email}")
+
+if "procore_access_token" in st.session_state:
+    st.success("Procore connected")
+else:
+    st.warning("Procore not connected")
 
 client_id = st.secrets["PROCORE_CLIENT_ID"]
 client_secret = st.secrets["PROCORE_CLIENT_SECRET"]
