@@ -38,6 +38,8 @@ login_url = st.secrets["PROCORE_LOGIN_URL"]
 api_url = st.secrets["PROCORE_API_URL"]
 redirect_uri = st.secrets["PROCORE_REDIRECT_URI"]
 
+st.subheader("Connect to Procore")
+
 code = st.query_params.get("code")
 oauth_error = st.query_params.get("error")
 returned_state = st.query_params.get("state")
@@ -46,15 +48,23 @@ if oauth_error:
     st.error(f"Procore authorization failed: {oauth_error}")
     st.stop()
 
-if code and "procore_access_token" not in st.session_state:
 
-    st.info("Authorization code received from Procore.")
+# ------------------------------------------------------------
+# HANDLE CALLBACK FROM PROCORE
+# ------------------------------------------------------------
+
+if code and "procore_access_token" not in st.session_state:
 
     expected_state = st.session_state.get("procore_oauth_state")
 
-    if returned_state != expected_state:
-        st.write("Returned state:", returned_state)
-        st.write("Expected state:", expected_state)
+    if not expected_state:
+        st.error(
+            "OAuth session state was lost. "
+            "Please start the Procore authorization again."
+        )
+        st.stop()
+
+    if not returned_state or returned_state != expected_state:
         st.error("Invalid Procore OAuth state.")
         st.stop()
 
@@ -71,7 +81,6 @@ if code and "procore_access_token" not in st.session_state:
     )
 
     if not token_response.ok:
-
         st.error("Could not connect to Procore.")
         st.code(token_response.text)
         st.stop()
@@ -79,39 +88,37 @@ if code and "procore_access_token" not in st.session_state:
     tokens = token_response.json()
 
     st.session_state["procore_access_token"] = tokens["access_token"]
-    st.session_state["procore_refresh_token"] = tokens["refresh_token"]
+    st.session_state["procore_refresh_token"] = tokens.get("refresh_token")
 
+    # OAuth state has served its purpose.
+    st.session_state.pop("procore_oauth_state", None)
+
+    # Remove ?code=...&state=... from the browser URL.
     st.query_params.clear()
 
     st.rerun()
 
-# ============================================================
-# 1. PROCORE AUTHORIZATION
-# ============================================================
 
-st.subheader("Connect to Procore")
+# ------------------------------------------------------------
+# SHOW CONNECTION STATUS / AUTHORIZATION BUTTON
+# ------------------------------------------------------------
 
 if "procore_access_token" in st.session_state:
+
     st.success("Connected to Procore.")
 
-if "procore_oauth_state" not in st.session_state:
-    st.session_state["procore_oauth_state"] = secrets.token_urlsafe(32)
+else:
 
-authorization_url = build_authorization_url(
-    login_url=login_url,
-    client_id=client_id,
-    redirect_uri=redirect_uri,
-    state=st.session_state["procore_oauth_state"],
-)
+    if "procore_oauth_state" not in st.session_state:
+        st.session_state["procore_oauth_state"] = secrets.token_urlsafe(32)
 
-if code:
-    expected_state = st.session_state.get("procore_oauth_state")
+    authorization_url = build_authorization_url(
+        login_url=login_url,
+        client_id=client_id,
+        redirect_uri=redirect_uri,
+        state=st.session_state["procore_oauth_state"],
+    )
 
-    if not returned_state or returned_state != expected_state:
-        st.error("Invalid Procore authorization state.")
-        st.stop()
-
-elif "procore_access_token" not in st.session_state:
     st.link_button(
         "Authorize Procore",
         authorization_url,
