@@ -89,9 +89,15 @@ else:
         redirect_uri=redirect_uri,
     )
 
-    st.link_button(
-        "Authorize Procore",
-        authorization_url,
+    st.markdown(
+        f"""
+    <a href="{authorization_url}" target="_self">
+        <button>
+            Authorize Procore
+        </button>
+    </a>
+    """,
+        unsafe_allow_html=True,
     )
 
 # ============================================================
