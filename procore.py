@@ -175,3 +175,35 @@ def get_timecards(
             progress_callback((index + 1) / len(projects))
 
     return all_timecards, failed_projects
+
+
+def procore_get(
+    url,
+    access_token,
+    company_id=None,
+    params=None,
+):
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json",
+    }
+
+    if company_id is not None:
+        headers["Procore-Company-Id"] = str(company_id)
+
+    response = requests.get(
+        url,
+        headers=headers,
+        params=params,
+        timeout=30,
+    )
+
+    if response.status_code == 401:
+        raise RuntimeError("PROCORE_SESSION_EXPIRED")
+
+    if response.status_code == 403:
+        raise RuntimeError("PROCORE_PERMISSION_DENIED")
+
+    response.raise_for_status()
+
+    return response.json()
