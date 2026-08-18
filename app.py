@@ -7,7 +7,6 @@ from datetime import date, timedelta
 
 from procore import (
     build_authorization_url,
-    exchange_authorization_code,
     get_companies,
     get_all_projects,
     get_timecards,
@@ -62,7 +61,7 @@ elif code and "procore_access_token" not in st.session_state:
     if token_response.ok:
         tokens = token_response.json()
 
-        st.session_state["procore_access_token"] = tokens["procore_access_token"]
+        st.session_state["procore_access_token"] = tokens["access_token"]
         st.session_state["procore_refresh_token"] = tokens.get("refresh_token")
 
         st.success("Procore connnection established successfully!")
