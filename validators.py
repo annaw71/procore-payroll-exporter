@@ -57,8 +57,12 @@ def validate_timecards(timecards):
             errors.append(f"{employee_name}: Timecard has '{hours}' on {date}.")
 
         if approval_status == "completed":
-            return ["Timecards have already been completed for this period."]
-        elif approval_status != "approved":
+            return {
+                "status": "completed",
+                "errors": [],
+            }
+
+        if approval_status != "approved":
             errors.append(f"{employee_name}: Timecard is not approved on {date}.")
 
         if not job:
@@ -72,4 +76,7 @@ def validate_timecards(timecards):
         else:
             seen_timecard_ids.add(timecard_id)
 
-    return errors
+    return {
+        "status": "ready",
+        "errors": errors,
+    }
