@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import streamlit as st
+import requests
 
 from datetime import date, timedelta
 
@@ -38,12 +39,16 @@ api_url = st.secrets["PROCORE_API_URL"]
 redirect_uri = st.secrets["PROCORE_REDIRECT_URI"]
 
 code = st.query_params.get("code")
+oauth_error = st.query_params.get("error")
 
-if code:
+if oauth_error:
+    st.error(f"Procore authorization failed: {oauth_error}")
+
+elif code and "procore_access_token" not in st.session_state:
     st.info("Authorization code received from Procore.")
 
     token_response = requests.post(
-        "https://login.procore.com/oauth/token",
+        f"{login_url}/oauth/token",
         data={
             "grant_type": "authorization_code",
             "client_id": client_id,
@@ -51,6 +56,7 @@ if code:
             "code": code,
             "redirect_uri": redirect_uri,
         },
+        timeout=30,
     )
 
     if token_response.ok:
@@ -63,6 +69,7 @@ if code:
 
         # clear the one time OAuth code from the URL to prevent reusing it
         st.query_params.clear()
+        st.rerun()
     else:
         st.error("Failed to exchange authorization code for access token.")
         st.code(token_response.text)
@@ -71,43 +78,22 @@ if code:
 # 1. PROCORE AUTHORIZATION
 # ============================================================
 
-authorization_url = build_authorization_url(
-    login_url=login_url,
-    client_id=client_id,
-    redirect_uri=redirect_uri,
-)
-
 st.subheader("1. Connect to Procore")
 
-st.link_button(
-    "Authorize Procore",
-    authorization_url,
-)
+if "procore_access_token" in st.session_state:
+    st.success("Connected to Procore.")
 
-authorization_code = st.text_input(
-    "Paste Procore authorization code here",
-    type="password",
-)
+else:
+    authorization_url = build_authorization_url(
+        login_url=login_url,
+        client_id=client_id,
+        redirect_uri=redirect_uri,
+    )
 
-if st.button("Connect to Procore"):
-    try:
-        token_data = exchange_authorization_code(
-            login_url=login_url,
-            client_id=client_id,
-            client_secret=client_secret,
-            authorization_code=authorization_code,
-            redirect_uri=redirect_uri,
-        )
-
-        st.session_state["access_token"] = token_data["access_token"]
-
-        st.session_state["refresh_token"] = token_data.get("refresh_token")
-
-        st.success("Connected to Procore!")
-
-    except Exception as exc:
-        st.error("Procore connection failed.")
-        st.code(str(exc))
+    st.link_button(
+        "Authorize Procore",
+        authorization_url,
+    )
 
 # ============================================================
 # 2. PAY PERIOD
