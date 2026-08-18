@@ -147,31 +147,6 @@ elif "procore_access_token" not in st.session_state:
 else:
     st.success("Connected to Procore.")
 
-# ------------------------------------------------------------
-# SHOW CONNECTION STATUS / AUTHORIZATION BUTTON
-# ------------------------------------------------------------
-
-if "procore_access_token" in st.session_state:
-
-    st.success("Connected to Procore.")
-
-else:
-
-    if "procore_oauth_state" not in st.session_state:
-        st.session_state["procore_oauth_state"] = secrets.token_urlsafe(32)
-
-    authorization_url = build_authorization_url(
-        login_url=login_url,
-        client_id=client_id,
-        redirect_uri=redirect_uri,
-        state=st.session_state["procore_oauth_state"],
-    )
-
-    st.link_button(
-        "Authorize Procore",
-        authorization_url,
-    )
-
 # ============================================================
 # 2. COMPANY
 # ============================================================
