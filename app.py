@@ -95,7 +95,37 @@ else:
     )
 
 # ============================================================
-# 2. PAY PERIOD
+# 2. COMPANY
+# ============================================================
+
+if "procore_access_token" in st.session_state:
+    st.divider()
+
+    try:
+        companies = get_companies(
+            api_url=api_url,
+            access_token=st.session_state["procore_access_token"],
+        )
+
+        if not companies:
+            st.warning("No companies found for this Procore account.")
+
+        else:
+            company = companies[0]
+
+            company_name = company["name"]
+            company_id = company["id"]
+
+            st.session_state["company_id"] = company_id
+
+            st.write(f"Procore Company: {company_name}")
+
+    except Exception as exc:
+        st.error("Could not load companies.")
+        st.code(str(exc))
+
+# ============================================================
+# 3. PAY PERIOD
 # ============================================================
 
 st.divider()
@@ -182,36 +212,6 @@ with forward_col:
     ):
         change_pay_period(7)
         st.rerun()
-
-# ============================================================
-# 3. COMPANY
-# ============================================================
-
-if "procore_access_token" in st.session_state:
-    st.divider()
-
-    try:
-        companies = get_companies(
-            api_url=api_url,
-            access_token=st.session_state["procore_access_token"],
-        )
-
-        if not companies:
-            st.warning("No companies found for this Procore account.")
-
-        else:
-            company = companies[0]
-
-            company_name = company["name"]
-            company_id = company["id"]
-
-            st.session_state["company_id"] = company_id
-
-            st.subheader(f"Procore Company: {company_name}")
-
-    except Exception as exc:
-        st.error("Could not load companies.")
-        st.code(str(exc))
 
 # ============================================================
 # LOAD PROJECTS
