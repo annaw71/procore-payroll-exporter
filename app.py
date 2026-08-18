@@ -373,22 +373,26 @@ if (
 if "timecards" in st.session_state:
     all_timecards = st.session_state["timecards"]
 
-    errors = validate_timecards(all_timecards)
+    validation = validate_timecards(all_timecards)
 
     # --------------------------------------------------------
     # BLOCK EXPORT IF ERRORS EXIST
     # --------------------------------------------------------
 
-    if errors:
-        st.error("Payroll Export Blocked - " "Errors Found")
+    if validation["status"] == "completed":
+        st.info("Timecards are already completed " "for this pay period.")
+        st.stop()
 
+    if validation["errors"]:
         st.write(
-            f"**{len(errors)} error" f"{'s' if len(errors) != 1 else ''} " f"found.**"
+            f"**{len(validation['errors'])} error"
+            f"{'s' if len(validation['errors']) != 1 else ''} "
+            f"found.**"
         )
 
         error_df = pd.DataFrame(
             {
-                "Problem": errors,
+                "Problem": validation["errors"],
             }
         )
 
@@ -402,6 +406,8 @@ if "timecards" in st.session_state:
             st.session_state.pop("timecards", None)
             st.session_state.pop("payroll_df", None)
             st.rerun()
+
+        st.stop()
 
     else:
         # ----------------------------------------------------
