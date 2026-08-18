@@ -117,13 +117,13 @@ if "procore_access_token" in st.session_state:
             None,
         )
 
-    if company is None:
-        st.error("Your Procore account does not have access to the configured company.")
-        st.stop()
+        if company is None:
+            st.error("Your Procore account does not have access to the configured company.")
+            st.stop()
 
-    st.session_state["company_id"] = company["id"]
+        st.session_state["company_id"] = company["id"]
 
-    st.write(f"Company: {company['name']}")
+        st.write(f"Company: {company['name']}")
 
 # ============================================================
 # 3. PAY PERIOD
