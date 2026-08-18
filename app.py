@@ -99,7 +99,6 @@ else:
 # ============================================================
 
 if "procore_access_token" in st.session_state:
-    st.divider()
 
     try:
         companies = get_companies(
@@ -118,7 +117,7 @@ if "procore_access_token" in st.session_state:
 
             st.session_state["company_id"] = company_id
 
-            st.write(f"Procore Company: {company_name}")
+            st.write(f"Company: {company_name}")
 
     except Exception as exc:
         st.error("Could not load companies.")
