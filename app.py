@@ -147,6 +147,29 @@ elif "procore_access_token" not in st.session_state:
 else:
     st.success("Connected to Procore.")
 
+    if st.button("Disconnect Procore"):
+        st.session_state.pop(
+            "procore_access_token",
+            None,
+        )
+
+        st.session_state.pop(
+            "procore_refresh_token",
+            None,
+        )
+
+        st.session_state.pop(
+            "company_id",
+            None,
+        )
+
+        st.session_state.pop(
+            "procore_oath_state",
+            None,
+        )
+
+        st.rerun()
+
 # ============================================================
 # 2. COMPANY
 # ============================================================
