@@ -40,12 +40,21 @@ redirect_uri = st.secrets["PROCORE_REDIRECT_URI"]
 
 code = st.query_params.get("code")
 oauth_error = st.query_params.get("error")
+returned_state = st.query_params.get("state")
 
 if oauth_error:
     st.error(f"Procore authorization failed: {oauth_error}")
+    st.stop()
 
-elif code and "procore_access_token" not in st.session_state:
+if code and "procore_access_token" not in st.session_state:
+
     st.info("Authorization code received from Procore.")
+
+    expected_state = st.session_state.get("procore_oauth_state")
+
+    if returned_state != expected_state:
+        st.error("Invalid Procore OAuth state.")
+        st.stop()
 
     token_response = requests.post(
         f"{login_url}/oauth/token",
@@ -59,20 +68,20 @@ elif code and "procore_access_token" not in st.session_state:
         timeout=30,
     )
 
-    if token_response.ok:
-        tokens = token_response.json()
+    if not token_response.ok:
 
-        st.session_state["procore_access_token"] = tokens["access_token"]
-        st.session_state["procore_refresh_token"] = tokens.get("refresh_token")
-
-        st.success("Procore connnection established successfully!")
-
-        # clear the one time OAuth code from the URL to prevent reusing it
-        st.query_params.clear()
-        st.rerun()
-    else:
-        st.error("Failed to exchange authorization code for access token.")
+        st.error("Could not connect to Procore.")
         st.code(token_response.text)
+        st.stop()
+
+    tokens = token_response.json()
+
+    st.session_state["procore_access_token"] = tokens["access_token"]
+    st.session_state["procore_refresh_token"] = tokens["refresh_token"]
+
+    st.query_params.clear()
+
+    st.rerun()
 
 # ============================================================
 # 1. PROCORE AUTHORIZATION
@@ -92,9 +101,6 @@ authorization_url = build_authorization_url(
     redirect_uri=redirect_uri,
     state=st.session_state["procore_oauth_state"],
 )
-
-code = st.query_params.get("code")
-returned_state = st.query_params.get("state")
 
 if code:
     expected_state = st.session_state.get("procore_oauth_state")
