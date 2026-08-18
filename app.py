@@ -2,6 +2,7 @@ import json
 import pandas as pd
 import streamlit as st
 import requests
+import secrets
 
 from datetime import date, timedelta
 
@@ -82,17 +83,30 @@ st.subheader("Connect to Procore")
 if "procore_access_token" in st.session_state:
     st.success("Connected to Procore.")
 
-else:
+elif "procore_oauth_state" in st.session_state:
+    st.session_state["procore_oauth_state"] = secrets.token_urlsafe(32)
+
     authorization_url = build_authorization_url(
         login_url=login_url,
         client_id=client_id,
         redirect_uri=redirect_uri,
+        state=st.session_state["procore_oauth_state"],
     )
 
     st.link_button(
         "Authorize Procore",
         authorization_url,
     )
+
+    code = st.query_params.get("code")
+    returned_state = st.query_params.get("state")
+
+    if code:
+        expected_state = st.session_state.get("procore_oauth_state")
+
+        if not returned_state or returned_state != expected_state:
+            st.error("Invalid Procore authorization state.")
+            st.stop()
 
 # ============================================================
 # 2. COMPANY
