@@ -3,13 +3,13 @@ from urllib.parse import urlencode
 import streamlit as st
 
 
-def build_authorization_url(login_url, client_id, redirect_uri):
-    from urllib.parse import urlencode
+def build_authorization_url(login_url, client_id, redirect_uri, state):
 
     auth_params = {
         "response_type": "code",
         "client_id": client_id,
         "redirect_uri": redirect_uri,
+        "state": state,
     }
 
     return f"{login_url}/oauth/authorize?" + urlencode(auth_params)
