@@ -53,6 +53,8 @@ if code and "procore_access_token" not in st.session_state:
     expected_state = st.session_state.get("procore_oauth_state")
 
     if returned_state != expected_state:
+        st.write("Returned state:", returned_state)
+        st.write("Expected state:", expected_state)
         st.error("Invalid Procore OAuth state.")
         st.stop()
 
