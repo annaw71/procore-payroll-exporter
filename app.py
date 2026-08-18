@@ -195,14 +195,21 @@ if "procore_access_token" in st.session_state:
     try:
         companies = get_companies(
             api_url=api_url,
-            access_token=st.session_state["procore_access_token"],
+            procore_access_token=st.session_state["procore_access_token"],
         )
 
-        company_options = {company["name"]: company["id"] for company in companies}
+        if not companies:
+            st.warning("No companies found for this Procore account.")
 
-        selected_company_name = company_options[0]()
+        else:
+            company = companies[0]
 
-        st.session_state["company_id"] = selected_company_name
+            company_name = company["name"]
+            company_id = company["id"]
+
+            st.session_state["company_id"] = company_id
+
+            st.success(f"Company: {company_name}")
 
     except Exception as exc:
         st.error("Could not load companies.")
