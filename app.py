@@ -109,9 +109,12 @@ if "procore_access_token" in st.session_state:
         target_company_id = int(st.secrets["PROCORE_COMPANY_ID"])
 
         company = next(
-            company
-            for company in companies
-            if company["id"] == target_company_id
+            (
+                company
+                for company in companies
+                if company["id"] == target_company_id
+            ),
+            None,
         )
 
     if company is None:
