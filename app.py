@@ -200,16 +200,9 @@ if "procore_access_token" in st.session_state:
 
         company_options = {company["name"]: company["id"] for company in companies}
 
-        selected_company_name = st.selectbox(
-            "Company",
-            company_options.keys(),
-        )
+        selected_company_name = company_options[0]()
 
-        selected_company_id = company_options[selected_company_name]
-
-        st.session_state["company_id"] = selected_company_id
-
-        st.success(f"Using company ID: " f"{selected_company_id}")
+        st.session_state["company_id"] = selected_company_name
 
     except Exception as exc:
         st.error("Could not load companies.")
