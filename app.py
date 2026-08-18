@@ -77,7 +77,7 @@ elif code and "procore_access_token" not in st.session_state:
 # 1. PROCORE AUTHORIZATION
 # ============================================================
 
-st.subheader("1. Connect to Procore")
+st.subheader("Connect to Procore")
 
 if "procore_access_token" in st.session_state:
     st.success("Connected to Procore.")
@@ -100,7 +100,7 @@ else:
 
 st.divider()
 
-st.subheader("2. Pay Period")
+st.subheader("Select Pay Period")
 
 
 def get_previous_week():
@@ -190,8 +190,6 @@ with forward_col:
 if "procore_access_token" in st.session_state:
     st.divider()
 
-    st.subheader("3. Choose Procore Company")
-
     try:
         companies = get_companies(
             api_url=api_url,
@@ -209,7 +207,7 @@ if "procore_access_token" in st.session_state:
 
             st.session_state["company_id"] = company_id
 
-            st.success(f"Company: {company_name}")
+            st.subheader(f"Procore Company: {company_name}")
 
     except Exception as exc:
         st.error("Could not load companies.")
@@ -248,7 +246,7 @@ if (
 ):
     st.divider()
 
-    st.subheader("4. Procore Timesheets")
+    st.subheader("Pull Procore Timesheets")
 
     if st.button("Pull Timesheets"):
         progress_bar = st.progress(0)
