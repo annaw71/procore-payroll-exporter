@@ -4,6 +4,8 @@ import streamlit as st
 
 
 def build_authorization_url(login_url, client_id, redirect_uri):
+    from urllib.parse import urlencode
+
     auth_params = {
         "response_type": "code",
         "client_id": client_id,
@@ -38,9 +40,9 @@ def exchange_authorization_code(
     return response.json()
 
 
-def get_companies(api_url, access_token):
+def get_companies(api_url, procore_access_token):
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "Authorization": f"Bearer {procore_access_token}",
     }
 
     companies_url = f"{api_url}/rest/v1.0/companies"
@@ -48,6 +50,7 @@ def get_companies(api_url, access_token):
     response = requests.get(
         companies_url,
         headers=headers,
+        timeout=30,
     )
 
     if not response.ok:
@@ -58,15 +61,13 @@ def get_companies(api_url, access_token):
 
 def get_all_projects(
     api_url,
-    access_token,
+    procore_access_token,
     company_id,
 ):
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "Authorization": f"Bearer {procore_access_token}",
         "Procore-Company-Id": str(company_id),
     }
-
-    projects_url = f"{api_url}/rest/v1.1/projects"
 
     all_projects = []
 
@@ -82,9 +83,10 @@ def get_all_projects(
         }
 
         response = requests.get(
-            projects_url,
+            f"{api_url}/rest/v1.1/projects",
             headers=headers,
             params=params,
+            timeout=30,
         )
 
         response.raise_for_status()
@@ -104,7 +106,7 @@ def get_all_projects(
 
 def get_timecards(
     api_url,
-    access_token,
+    procore_access_token,
     company_id,
     projects,
     start_date,
@@ -112,7 +114,7 @@ def get_timecards(
     progress_callback=None,
 ):
     headers = {
-        "Authorization": f"Bearer {access_token}",
+        "Authorization": f"Bearer {procore_access_token}",
         "Procore-Company-Id": str(company_id),
     }
 
