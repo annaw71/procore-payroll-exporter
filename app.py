@@ -256,7 +256,7 @@ if (
                 failed_projects,
             ) = get_timecards(
                 api_url=api_url,
-                access_token=st.session_state["procore_access_token"],
+                procore_access_token=st.session_state["procore_access_token"],
                 company_id=st.session_state["company_id"],
                 projects=st.session_state["projects"],
                 start_date=start_date,
