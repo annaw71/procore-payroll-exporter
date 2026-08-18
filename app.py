@@ -13,6 +13,7 @@ from procore import (
     get_companies,
     get_all_projects,
     get_timecards,
+    procore_get,
 )
 
 from validators import validate_timecards
@@ -300,8 +301,26 @@ if (
             procore_access_token=st.session_state["procore_access_token"],
             company_id=st.session_state["company_id"],
         )
-
         st.session_state["projects"] = projects
+
+    except RuntimeError as exc:
+
+        if str(exc) == "PROCORE_SESSION_EXPIRED":
+            st.warning(
+                "Your Procore session expired." "Please authorize Procore again."
+            )
+            st.session_state.pop(
+                "procore_access_token",
+                None,
+            )
+            st.stop()
+        elif str(exc) == " PROCORE_PERMISSION_DENIED":
+            st.error(
+                "Your Procore account does not have " "permission to access this data."
+            )
+            st.stop()
+        else:
+            raise
 
     except Exception as exc:
         st.error("Could not load Procore projects.")
