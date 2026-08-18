@@ -37,6 +37,36 @@ login_url = st.secrets["PROCORE_LOGIN_URL"]
 api_url = st.secrets["PROCORE_API_URL"]
 redirect_uri = st.secrets["PROCORE_REDIRECT_URI"]
 
+code = st.query_params.get("code")
+
+if code:
+    st.info("Authorization code received from Procore.")
+
+    token_response = requests.post(
+        "https://login.procore.com/oauth/token",
+        data={
+            "grant_type": "authorization_code",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+            "redirect_uri": redirect_uri,
+        },
+    )
+
+    if token_response.ok:
+        tokens = token_response.json()
+
+        st.session_state["procore_access_token"] = tokens["access_token"]
+        st.session_state["procore_refresh_token"] = tokens.get("refresh_token")
+
+        st.success("Procore connnection established successfully!")
+
+        # clear the one time OAuth code from the URL to prevent reusing it
+        st.query_params.clear()
+    else:
+        st.error("Failed to exchange authorization code for access token.")
+        st.code(token_response.text)
+
 # ============================================================
 # 1. PROCORE AUTHORIZATION
 # ============================================================
