@@ -270,7 +270,7 @@ with date_col:
             text-align: center;
             font-size: 1.25rem;
             font-weight: 400;
-            padding-top: 0.35rem;
+            padding-top: 0.1rem;
         ">
             {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}<br>  
             (Check Date: {check_date.strftime("%m/%d/%Y")})
