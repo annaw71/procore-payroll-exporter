@@ -213,22 +213,25 @@ def get_previous_week():
     # Previous completed week
     previous_monday = current_monday - timedelta(days=7)
     previous_sunday = previous_monday + timedelta(days=6)
+    check_date = current_monday + timedelta(days=11)
 
-    return previous_monday, previous_sunday
+    return previous_monday, previous_sunday, check_date
 
 
 def change_pay_period(days):
     st.session_state["pay_period_start"] += timedelta(days=days)
     st.session_state["pay_period_end"] += timedelta(days=days)
+    st.session_state["check_date"] += timedelta(days=days)
     st.session_state.pop("timecards", None)
     st.session_state.pop("payroll_df", None)
 
 
 # Set the default pay period only once.
 if "pay_period_start" not in st.session_state:
-    previous_monday, previous_sunday = get_previous_week()
+    previous_monday, previous_sunday, check_date = get_previous_week()
     st.session_state["pay_period_start"] = previous_monday
     st.session_state["pay_period_end"] = previous_sunday
+    st.session_state["check_date"] = check_date
 
 # Navigation buttons
 st.markdown(
@@ -259,6 +262,7 @@ with back_col:
 with date_col:
     start_date = st.session_state["pay_period_start"]
     end_date = st.session_state["pay_period_end"]
+    check_date = st.session_state["check_date"]
 
     st.markdown(
         f"""
@@ -268,7 +272,8 @@ with date_col:
             font-weight: 400;
             padding-top: 0.35rem;
         ">
-            {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}
+            {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")} "\n" 
+                                                 "(Check Date: " {check_date.strftime("%m/%d/%Y")} ")"
         </div>
         """,
         unsafe_allow_html=True,
