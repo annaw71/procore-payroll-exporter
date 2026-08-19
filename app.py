@@ -272,8 +272,8 @@ with date_col:
             font-weight: 400;
             padding-top: 0.35rem;
         ">
-            {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")} "\n" 
-                                                 "(Check Date: " {check_date.strftime("%m/%d/%Y")} ")"
+            {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}  
+            (Check Date: {check_date.strftime("%m/%d/%Y")})
         </div>
         """,
         unsafe_allow_html=True,
