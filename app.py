@@ -272,7 +272,7 @@ with date_col:
             font-weight: 400;
             padding-top: 0.1rem;
         ">
-            {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}<br>  
+            Pay Period: {start_date.strftime("%m/%d/%Y")} - {end_date.strftime("%m/%d/%Y")}<br>  
             (Check Date: {check_date.strftime("%m/%d/%Y")})
         </div>
         """,
