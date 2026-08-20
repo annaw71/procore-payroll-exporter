@@ -1,6 +1,7 @@
 import requests
 from urllib.parse import urlencode
 import streamlit as st
+import json
 
 
 def build_authorization_url(login_url, client_id, redirect_uri, state):
@@ -215,50 +216,26 @@ def mark_timecards_completed(
     company_id,
     timecards,
 ):
-    """
-    Mark the Procore timesheets represented by these timecards as completed.
-    """
+    timesheets = {}
 
-    # Get unique timesheet IDs from the timecards we actually exported.
-    timesheet_ids = {
-        (tc.get("timesheet") or {}).get("id")
-        for tc in timecards
-        if (tc.get("timesheet") or {}).get("id")
-    }
+    for tc in timecards:
+        timesheet = tc.get("timesheet") or {}
 
-    if not timesheet_ids:
+        timesheet_id = timesheet.get("id")
+
+        if timesheet_id:
+            timesheets[timesheet_id] = timesheet
+
+    if not timesheets:
         raise RuntimeError("No Procore timesheet IDs were found.")
 
-    headers = {
-        "Authorization": f"Bearer {procore_access_token}",
-        "Procore-Company-Id": str(company_id),
-        "Content-Type": "application/json",
-    }
-
-    completed = []
-    failed = []
-
-    for timesheet_id in timesheet_ids:
-        response = requests.patch(
-            f"{api_url}/rest/v1.0/timesheets/{timesheet_id}",
-            headers=headers,
-            json={
-                "timesheet": {
-                    "status": "completed",
-                }
-            },
-            timeout=30,
+    # TEMPORARY DEBUG:
+    # Return the timesheet objects instead of modifying Procore.
+    raise RuntimeError(
+        "TIMESHEET DEBUG:\n"
+        + json.dumps(
+            list(timesheets.values())[:3],
+            indent=2,
+            default=str,
         )
-
-        if response.ok:
-            completed.append(timesheet_id)
-        else:
-            failed.append(
-                {
-                    "timesheet_id": timesheet_id,
-                    "status_code": response.status_code,
-                    "error": response.text,
-                }
-            )
-
-    return completed, failed
+    )
