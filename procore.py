@@ -236,8 +236,6 @@ def mark_timecards_completed(
 
     payload = {"updates": [{"id": timecard_id} for timecard_id in timecard_ids]}
 
-    st.write("First timecard ID:", next(iter(timecard_ids)))
-
     response = requests.patch(
         url,
         headers=headers,
