@@ -216,26 +216,73 @@ def mark_timecards_completed(
     company_id,
     timecards,
 ):
-    timesheets = {}
+    """
+    Attempt to mark exported Procore timesheets as completed.
+    """
+
+    headers = {
+        "Authorization": f"Bearer {procore_access_token}",
+        "Procore-Company-Id": str(company_id),
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    # Group unique timesheets by project.
+    project_timesheets = {}
 
     for tc in timecards:
+        project_id = tc.get("project_id")
         timesheet = tc.get("timesheet") or {}
-
         timesheet_id = timesheet.get("id")
 
-        if timesheet_id:
-            timesheets[timesheet_id] = timesheet
+        if not project_id or not timesheet_id:
+            continue
 
-    if not timesheets:
-        raise RuntimeError("No Procore timesheet IDs were found.")
+        project_timesheets.setdefault(
+            project_id,
+            set(),
+        ).add(timesheet_id)
 
-    # TEMPORARY DEBUG:
-    # Return the timesheet objects instead of modifying Procore.
-    raise RuntimeError(
-        "TIMESHEET DEBUG:\n"
-        + json.dumps(
-            list(timesheets.values())[:3],
-            indent=2,
-            default=str,
+    if not project_timesheets:
+        raise RuntimeError(
+            "No Procore timesheets were found in the exported timecards."
         )
-    )
+
+    completed = []
+    failed = []
+
+    for project_id, timesheet_ids in project_timesheets.items():
+
+        for timesheet_id in timesheet_ids:
+
+            response = requests.patch(
+                (
+                    f"{api_url}/rest/v1.0/projects/"
+                    f"{project_id}/timesheets/update_approval"
+                ),
+                headers=headers,
+                json={
+                    "timesheet_ids": [timesheet_id],
+                    "status": "completed",
+                },
+                timeout=30,
+            )
+
+            raise RuntimeError(
+                f"TEST RESULT: " f"{response.status_code}\n" f"{response.text}"
+            )
+
+            if response.ok:
+                completed.append(timesheet_id)
+
+            else:
+                failed.append(
+                    {
+                        "project_id": project_id,
+                        "timesheet_id": timesheet_id,
+                        "status_code": response.status_code,
+                        "error": response.text,
+                    }
+                )
+
+    return completed, failed
