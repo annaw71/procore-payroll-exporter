@@ -263,7 +263,7 @@ def mark_timecards_completed(
                 headers=headers,
                 json={
                     "timesheet_ids": [timesheet_id],
-                    "status": "completed",
+                    "status": "approved",
                 },
                 timeout=30,
             )
