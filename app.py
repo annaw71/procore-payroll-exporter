@@ -473,7 +473,7 @@ if "timecards" in st.session_state:
         # COPY TO SAGE
         # ----------------------------------------------------
 
-        sage_copy_json = json.dumps(sage_copy_text)
+        sage_copy_json = json.dumps(sage_copy_text).replace("</", "<\\/")
 
         row_count = len(payroll_df)
 
@@ -486,7 +486,8 @@ if "timecards" in st.session_state:
                     font-size: 1rem;
                     cursor: pointer;
                     border-radius: 0.5rem;
-                    border: 1px solid #ccc;"
+                    border: 1px solid #ccc;
+                "
             >
                 Copy Table for Sage
             </button>
@@ -498,42 +499,57 @@ if "timecards" in st.session_state:
 
             <script>
                 const button =
-                    document.getElementById(
-                        "copy-sage-button"
-                    );
+                    document.getElementById("copy-sage-button");
 
                 const status =
-                    document.getElementById(
-                        "copy-sage-status"
-                    );
+                    document.getElementById("copy-sage-status");
 
-                button.addEventListener(
-                    "click",
-                    async () => {{
-                        const text =
-                            {sage_copy_json};
+                const text = {sage_copy_json};
 
-                        try {{
-                            await navigator
-                                .clipboard
-                                .writeText(text);
+                button.addEventListener("click", async () => {{
+                    try {{
+                        if (
+                            navigator.clipboard &&
+                            window.isSecureContext
+                        ) {{
+                            await navigator.clipboard.writeText(text);
+                        }} else {{
+                            const textarea =
+                                document.createElement("textarea");
 
-                            button.innerText =
-                                "✅ Copied "
-                                + "{row_count}"
-                                + " rows to clipboard";
+                            textarea.value = text;
+                            textarea.style.position = "fixed";
+                            textarea.style.left = "-9999px";
 
-                            status.innerText = "";
+                            document.body.appendChild(textarea);
 
-                        }} catch (error) {{
-                            status.innerText =
-                                "Unable to copy "
-                                + "to clipboard.";
+                            textarea.focus();
+                            textarea.select();
 
-                            console.error(error);
+                            const copied =
+                                document.execCommand("copy");
+
+                            document.body.removeChild(textarea);
+
+                            if (!copied) {{
+                                throw new Error(
+                                    "Fallback copy failed."
+                                );
+                            }}
                         }}
+
+                        button.innerText =
+                            "✅ Copied {row_count} rows";
+
+                        status.innerText = "";
+
+                    }} catch (error) {{
+                        console.error(error);
+
+                        status.innerText =
+                            "❌ Clipboard blocked by browser.";
                     }}
-                );
+                }});
             </script>
             """,
             unsafe_allow_javascript=True,
