@@ -208,3 +208,53 @@ def procore_get(
     response.raise_for_status()
 
     return response.json()
+
+
+def mark_timecards_completed(
+    api_url,
+    procore_access_token,
+    company_id,
+    timecards,
+):
+    """
+    Mark the exported Procore timesheets as completed.
+    """
+
+    timesheet_ids = {
+        (tc.get("timesheet") or {}).get("id")
+        for tc in timecards
+        if (tc.get("timesheet") or {}).get("id")
+    }
+
+    if not timesheet_ids:
+        raise RuntimeError("No Procore timesheet IDs were found.")
+
+    headers = {
+        "Authorization": f"Bearer {procore_access_token}",
+        "Procore-Company-Id": str(company_id),
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    url = f"{api_url}/rest/v1.0/companies/" f"{company_id}/timesheets"
+
+    payload = {"updates": [{"id": timesheet_id} for timesheet_id in timesheet_ids]}
+
+    response = requests.patch(
+        url,
+        headers=headers,
+        params={
+            "approval_status": "completed",
+        },
+        json=payload,
+        timeout=30,
+    )
+
+    if not response.ok:
+        raise RuntimeError(
+            "Could not mark Procore timesheets completed.\n"
+            f"Status: {response.status_code}\n"
+            f"{response.text}"
+        )
+
+    return list(timesheet_ids), []
