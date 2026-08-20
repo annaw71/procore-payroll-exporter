@@ -14,6 +14,7 @@ from procore import (
     get_all_projects,
     get_timecards,
     procore_get,
+    mark_timecards_completed,
 )
 
 from validators import validate_timecards
@@ -554,6 +555,49 @@ if "timecards" in st.session_state:
             """,
             unsafe_allow_javascript=True,
         )
+
+        # ----------------------------------------------------
+        # MARK EXPORTED TIME COMPLETED
+        # ----------------------------------------------------
+
+        if st.button(
+            "Mark Exported Time as Completed",
+            type="primary",
+        ):
+            try:
+                completed, failed = mark_timecards_completed(
+                    api_url=api_url,
+                    procore_access_token=st.session_state["procore_access_token"],
+                    company_id=st.session_state["company_id"],
+                    timecards=all_timecards,
+                )
+
+                if failed:
+                    st.error(
+                        f"{len(failed)} timesheet(s) could not " "be marked completed."
+                    )
+
+                    for failure in failed:
+                        st.code(
+                            f"Timesheet {failure['timesheet_id']}: "
+                            f"{failure['status_code']} "
+                            f"{failure['error']}"
+                        )
+
+                else:
+                    st.success(
+                        f"{len(completed)} timesheet(s) "
+                        "marked as completed in Procore."
+                    )
+
+                    # Force a fresh pull so the UI immediately
+                    # sees that these entries are completed.
+                    st.session_state.pop("timecards", None)
+                    st.session_state.pop("payroll_df", None)
+
+            except Exception as exc:
+                st.error("Could not mark the exported time as completed.")
+                st.code(str(exc))
 
         st.markdown("""
             ### After copying:
