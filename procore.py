@@ -221,9 +221,9 @@ def mark_timecards_completed(
 
     # Get unique timesheet IDs from the timecards we actually exported.
     timesheet_ids = {
-        tc.get("timesheet", {}).get("id")
+        (tc.get("timesheet") or {}).get("id")
         for tc in timecards
-        if tc.get("timesheet", {}).get("id")
+        if (tc.get("timesheet") or {}).get("id")
     }
 
     if not timesheet_ids:
