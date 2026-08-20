@@ -220,13 +220,9 @@ def mark_timecards_completed(
     Mark the exported Procore timesheets as completed.
     """
 
-    timesheet_ids = {
-        (tc.get("timesheet") or {}).get("id")
-        for tc in timecards
-        if (tc.get("timesheet") or {}).get("id")
-    }
+    timecard_ids = {tc.get("id") for tc in timecards if tc.get("id")}
 
-    if not timesheet_ids:
+    if not timecard_ids:
         raise RuntimeError("No Procore timesheet IDs were found.")
 
     headers = {
@@ -238,7 +234,9 @@ def mark_timecards_completed(
 
     url = f"{api_url}/rest/v1.0/companies/" f"{company_id}/timesheets"
 
-    payload = {"updates": [{"id": timesheet_id} for timesheet_id in timesheet_ids]}
+    payload = {"updates": [{"id": timecard_id} for timecard_id in timecard_ids]}
+
+    st.write("First timecard ID:", next(iter(timecard_ids)))
 
     response = requests.patch(
         url,
@@ -257,4 +255,4 @@ def mark_timecards_completed(
             f"{response.text}"
         )
 
-    return list(timesheet_ids), []
+    return list(timecard_ids), []
