@@ -17,7 +17,7 @@ def get_ramp_access_token(client_id, client_secret):
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "transaction:read",
+        "scope": "transaction:read accounting:read",
     }
 
     response = requests.post(
@@ -32,3 +32,21 @@ def get_ramp_access_token(client_id, client_secret):
     token_data = response.json()
 
     return token_data["access_token"]
+
+
+def get_accounting_connection(access_token):
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Accept": "application/json",
+    }
+
+    response = requests.get(
+        "https://api.ramp.com/developer/v1/accounting/connection",
+        headers=headers,
+        timeout=30,
+    )
+
+    response.raise_for_status()
+
+    return response.json()

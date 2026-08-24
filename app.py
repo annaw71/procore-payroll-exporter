@@ -25,7 +25,7 @@ from sage_formatter import (
     get_payroll_totals,
 )
 
-from ramp_auth import get_ramp_access_token
+from ramp_auth import get_ramp_access_token, get_accounting_connection
 from ramp import get_ready_transactions
 from ramp_formatter import format_ramp_transactions
 
@@ -665,3 +665,8 @@ elif tool == "Ramp Transactions Exporter":
         except Exception as e:
 
             st.error(f"Cound not load Ramp transactions: {e}")
+
+        connection = get_accounting_connection(access_token)
+
+        st.write("Accounting connection:")
+        st.json(connection)
