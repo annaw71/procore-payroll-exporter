@@ -42,4 +42,7 @@ def get_ready_transactions(access_token):
 
         params["start"] = next_page
 
+        if not response.ok:
+            raise Exception(f"Ramp API error {response.status_code}: {response.text}")
+
     return transactions

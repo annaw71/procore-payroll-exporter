@@ -49,4 +49,9 @@ def get_accounting_connection(access_token):
 
     response.raise_for_status()
 
+    if not response.ok:
+        raise Exception(
+            f"Ramp accounting error {response.status_code}: {response.text}"
+        )
+
     return response.json()
