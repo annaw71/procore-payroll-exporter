@@ -663,79 +663,79 @@ elif tool == "Ramp Transactions Exporter":
 
                 st.html(
                     f"""
-    <button
-        id="copy-ramp-sage-button"
-        style="
-            padding: 0.5rem 0.9rem;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 0.5rem;
-            border: 1px solid #ccc;
-        "
-    >
-        Copy Table for Sage
-    </button>
+                    <button
+                        id="copy-ramp-sage-button"
+                        style="
+                            padding: 0.5rem 0.9rem;
+                            font-size: 1rem;
+                            cursor: pointer;
+                            border-radius: 0.5rem;
+                            border: 1px solid #ccc;
+                        "
+                    >
+                        Copy Table for Sage
+                    </button>
 
-    <span
-        id="copy-ramp-sage-status"
-        style="margin-left: 10px;"
-    ></span>
+                    <span
+                        id="copy-ramp-sage-status"
+                        style="margin-left: 10px;"
+                    ></span>
 
-    <script>
-        const button =
-            document.getElementById("copy-ramp-sage-button");
+                    <script>
+                        const button =
+                            document.getElementById("copy-ramp-sage-button");
 
-        const status =
-            document.getElementById("copy-ramp-sage-status");
+                        const status =
+                            document.getElementById("copy-ramp-sage-status");
 
-        const text = {sage_copy_json};
+                        const text = {sage_copy_json};
 
-        button.addEventListener("click", async () => {{
-            try {{
-                if (
-                    navigator.clipboard &&
-                    window.isSecureContext
-                ) {{
-                    await navigator.clipboard.writeText(text);
-                }} else {{
-                    const textarea =
-                        document.createElement("textarea");
+                        button.addEventListener("click", async () => {{
+                            try {{
+                                if (
+                                    navigator.clipboard &&
+                                    window.isSecureContext
+                                ) {{
+                                    await navigator.clipboard.writeText(text);
+                                }} else {{
+                                    const textarea =
+                                        document.createElement("textarea");
 
-                    textarea.value = text;
-                    textarea.style.position = "fixed";
-                    textarea.style.left = "-9999px";
+                                    textarea.value = text;
+                                    textarea.style.position = "fixed";
+                                    textarea.style.left = "-9999px";
 
-                    document.body.appendChild(textarea);
+                                    document.body.appendChild(textarea);
 
-                    textarea.focus();
-                    textarea.select();
+                                    textarea.focus();
+                                    textarea.select();
 
-                    const copied =
-                        document.execCommand("copy");
+                                    const copied =
+                                        document.execCommand("copy");
 
-                    document.body.removeChild(textarea);
+                                    document.body.removeChild(textarea);
 
-                    if (!copied) {{
-                        throw new Error(
-                            "Fallback copy failed."
-                        );
-                    }}
-                }}
+                                    if (!copied) {{
+                                        throw new Error(
+                                            "Fallback copy failed."
+                                        );
+                                    }}
+                                }}
 
-                button.innerText =
-                    "✅ Copied {row_count} rows";
+                                button.innerText =
+                                    "✅ Copied {row_count} rows";
 
-                status.innerText = "";
+                                status.innerText = "";
 
-            }} catch (error) {{
-                console.error(error);
+                            }} catch (error) {{
+                                console.error(error);
 
-                status.innerText =
-                    "❌ Clipboard blocked by browser.";
-            }}
-        }});
-    </script>
-    """,
+                                status.innerText =
+                                    "❌ Clipboard blocked by browser.";
+                            }}
+                        }});
+                    </script>
+                    """,
                     unsafe_allow_javascript=True,
                 )
 
