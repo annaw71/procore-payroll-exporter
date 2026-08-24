@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 import requests
 import secrets
 import hashlib
@@ -638,8 +639,8 @@ elif tool == "Ramp Transactions Exporter":
 
             transactions = get_ready_transactions(access_token)
 
-            with st.expander("View Raw Ramp Data"):
-                st.json(transactions)
+            # with st.expander("View Raw Ramp Data"):
+            # st.json(transactions)
 
             if not transactions:
 
@@ -656,10 +657,32 @@ elif tool == "Ramp Transactions Exporter":
                     use_container_width=True,
                 )
 
+                sage_clipboard_text = df.to_csv(sep="\t", index=False)
+
+                components.html(
+                    f"""
+                    <button
+                        onclick="navigator.clipboard.writeText(document.getElementById('sage-data').value)"
+                        style="
+                            padding: 0.5rem 1rem;
+                            border-radius: 0.5rem;
+                            border: 1px solid #ccc;
+                            cursor: pointer;
+                            font-size: 14px;
+                        "
+                    >
+                        Copy Table for Sage
+                    </button>
+
+                    <textarea id="sage-data" style="display:none;">{sage_clipboard_text}</textarea>
+                    """,
+                    height=50,
+                )
+
                 csv = df.to_csv(index=False).encode("utf-8")
 
                 st.download_button(
-                    label="Download CSV",
+                    label="Optional CSV Download",
                     data=csv,
                     file_name="ramp_ready_transactions.csv",
                     mime="text/csv",
