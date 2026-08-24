@@ -28,7 +28,10 @@ def get_ready_transactions(access_token):
             timeout=30,
         )
 
-        response.raise_for_status()
+        # response.raise_for_status()
+
+        if not response.ok:
+            raise Exception(f"Ramp API error {response.status_code}: {response.text}")
 
         result = response.json()
 
@@ -41,8 +44,5 @@ def get_ready_transactions(access_token):
             break
 
         params["start"] = next_page
-
-        if not response.ok:
-            raise Exception(f"Ramp API error {response.status_code}: {response.text}")
 
     return transactions

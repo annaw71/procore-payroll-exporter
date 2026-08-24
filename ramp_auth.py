@@ -17,7 +17,7 @@ def get_ramp_access_token(client_id, client_secret):
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "transaction:read accounting:read",
+        "scope": "transactions:read accounting:read",
     }
 
     response = requests.post(
@@ -47,7 +47,7 @@ def get_accounting_connection(access_token):
         timeout=30,
     )
 
-    response.raise_for_status()
+    # response.raise_for_status()
 
     if not response.ok:
         raise Exception(

@@ -664,7 +664,7 @@ elif tool == "Ramp Transactions Exporter":
 
         except Exception as e:
 
-            st.error(f"Cound not load Ramp transactions: {e}")
+            st.error(f"Could not load Ramp transactions: {e}")
 
         # connection = get_accounting_connection(access_token)
 
