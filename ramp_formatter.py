@@ -51,20 +51,24 @@ def format_ramp_transactions(transactions):
 
             rows.append(
                 {
-                    "Transaction ID": transaction.get("id"),
-                    "Date": transaction.get("accounting_date"),
-                    "Merchant": transaction.get("merchant_name"),
-                    "Merchant Description": transaction.get("merchant_descriptor"),
-                    "Employee": employee_name,
-                    "Department": card_holder.get("department_name"),
-                    "Location": card_holder.get("location_name"),
-                    "Amount": transaction.get("amount"),
-                    "Memo": transaction.get("memo"),
-                    "GL Account": gl_account["code"],
-                    "GL Account Name": gl_account["name"],
-                    "State": transaction.get("state"),
-                    "Sync Status": transaction.get("sync_status"),
-                    "Approved": transaction.get("all_requirements_met_and_approved"),
+                    "Credit Card": "1 - Ramp",
+                    "Include": "Include",
+                    "Transaction #": transaction.get("accounting_date"),
+                    "Description": employee_name,
+                    "Payee": transaction.get("merchant_name"),
+                    "Charge Amount": transaction.get("amount"),
+                    "Credit Amount": "",
+                    "Posted Date": "dont know what to put",
+                    "Notes": transaction.get("memo"),
+                    "Account": gl_account["code"] + " - " + gl_account["name"],
+                    "Subaccount": "don't know what to put",
+                    "Job": "dont know - blank?",
+                    "Phase": "",
+                    "Job Cost Code": "don't know - blank?",
+                    "Job Cost Type": "don't know - said something about putting manually",
+                    "Equipment": "same as prev",
+                    "Equipment Cost Code": "same as prev",
+                    "Equipment Cost Type": "same",
                 }
             )
 
