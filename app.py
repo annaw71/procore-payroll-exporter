@@ -666,7 +666,7 @@ elif tool == "Ramp Transactions Exporter":
 
             st.error(f"Cound not load Ramp transactions: {e}")
 
-        connection = get_accounting_connection(access_token)
+        # connection = get_accounting_connection(access_token)
 
-        st.write("Accounting connection:")
-        st.json(connection)
+        # st.write("Accounting connection:")
+        # st.json(connection)
