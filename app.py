@@ -657,7 +657,7 @@ elif tool == "Ramp Transactions Exporter":
                     use_container_width=True,
                 )
 
-                sage_clipboard_text = df.to_csv(sep="\t", index=False)
+                sage_clipboard_text = df.to_csv(sep="\t", index=False, header=False)
                 sage_copy_json = json.dumps(sage_clipboard_text)
                 row_count = len(df)
 
