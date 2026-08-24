@@ -658,25 +658,85 @@ elif tool == "Ramp Transactions Exporter":
                 )
 
                 sage_clipboard_text = df.to_csv(sep="\t", index=False)
+                sage_copy_json = json.dumps(sage_clipboard_text)
+                row_count = len(df)
 
-                components.html(
+                st.html(
                     f"""
-                    <button
-                        onclick="navigator.clipboard.writeText(document.getElementById('sage-data').value)"
-                        style="
-                            padding: 0.5rem 1rem;
-                            border-radius: 0.5rem;
-                            border: 1px solid #ccc;
-                            cursor: pointer;
-                            font-size: 14px;
-                        "
-                    >
-                        Copy Table for Sage
-                    </button>
+    <button
+        id="copy-ramp-sage-button"
+        style="
+            padding: 0.5rem 0.9rem;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 0.5rem;
+            border: 1px solid #ccc;
+        "
+    >
+        Copy Table for Sage
+    </button>
 
-                    <textarea id="sage-data" style="display:none;">{sage_clipboard_text}</textarea>
-                    """,
-                    height=50,
+    <span
+        id="copy-ramp-sage-status"
+        style="margin-left: 10px;"
+    ></span>
+
+    <script>
+        const button =
+            document.getElementById("copy-ramp-sage-button");
+
+        const status =
+            document.getElementById("copy-ramp-sage-status");
+
+        const text = {sage_copy_json};
+
+        button.addEventListener("click", async () => {{
+            try {{
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {{
+                    await navigator.clipboard.writeText(text);
+                }} else {{
+                    const textarea =
+                        document.createElement("textarea");
+
+                    textarea.value = text;
+                    textarea.style.position = "fixed";
+                    textarea.style.left = "-9999px";
+
+                    document.body.appendChild(textarea);
+
+                    textarea.focus();
+                    textarea.select();
+
+                    const copied =
+                        document.execCommand("copy");
+
+                    document.body.removeChild(textarea);
+
+                    if (!copied) {{
+                        throw new Error(
+                            "Fallback copy failed."
+                        );
+                    }}
+                }}
+
+                button.innerText =
+                    "✅ Copied {row_count} rows";
+
+                status.innerText = "";
+
+            }} catch (error) {{
+                console.error(error);
+
+                status.innerText =
+                    "❌ Clipboard blocked by browser.";
+            }}
+        }});
+    </script>
+    """,
+                    unsafe_allow_javascript=True,
                 )
 
                 csv = df.to_csv(index=False).encode("utf-8")
