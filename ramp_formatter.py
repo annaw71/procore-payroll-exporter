@@ -49,26 +49,49 @@ def format_ramp_transactions(transactions):
                 "Sage GL Account",
             )
 
+            # get transaction #
+            transaction_num = transaction.get("accounting_date")
+
+            if transaction_num:
+                transaction_num = pd.to_datetime(transaction_num).strftime(
+                    "%Y-%m-%d" + "T" + "%H:%M:%S"
+                )
+
+            # get transaction amount
+            if transaction.get("amount") > 0:
+                charge = transaction.get("amount")
+                credit = None
+
+            else:
+                credit = transaction.get("amount")
+                charge = None
+
+            # get posted date, format
+            posted_date = transaction.get("user_transaction_time")
+
+            if posted_date:
+                posted_date = pd.to_datetime(posted_date).strftime("%m/%d/%Y")
+
             rows.append(
                 {
                     "Credit Card": "1 - Ramp",
                     "Include": "Include",
-                    "Transaction #": transaction.get("accounting_date"),
+                    "Transaction #": transaction_num,
                     "Description": employee_name,
                     "Payee": transaction.get("merchant_name"),
-                    "Charge Amount": transaction.get("amount"),
-                    "Credit Amount": "?",
-                    "Posted Date": "?",
+                    "Charge Amount": charge,
+                    "Credit Amount": credit,
+                    "Posted Date": posted_date,
                     "Notes": transaction.get("memo"),
                     "Account": gl_account["code"] + " - " + gl_account["name"],
-                    "Subaccount": "?",
-                    "Job": "? blank?",
-                    "Phase": "? blank?",
-                    "Job Cost Code": "? blank?",
-                    "Job Cost Type": "?",
-                    "Equipment": "?",
-                    "Equipment Cost Code": "?",
-                    "Equipment Cost Type": "?",
+                    "Subaccount": None,
+                    "Job": None,
+                    "Phase": None,
+                    "Job Cost Code": None,
+                    "Job Cost Type": None,
+                    "Equipment": None,
+                    "Equipment Cost Code": None,
+                    "Equipment Cost Type": None,
                 }
             )
 
