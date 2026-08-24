@@ -623,7 +623,7 @@ if tool == "Procore Payroll Exporter":
 
 elif tool == "Ramp Transactions Exporter":
 
-    st.titleI("Ramp Transactions Exporter")
+    st.title("Ramp Transactions Exporter")
 
     st.write("Export card transactions currently marked Ready to Export in Ramp.")
 
