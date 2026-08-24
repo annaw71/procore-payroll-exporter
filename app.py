@@ -638,6 +638,9 @@ elif tool == "Ramp Transactions Exporter":
 
             transactions = get_ready_transactions(access_token)
 
+            with st.expander("View Raw Ramp Data"):
+                st.json(transactions)
+
             if not transactions:
 
                 st.success("There are currently no card transactions to export.")
