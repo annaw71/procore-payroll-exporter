@@ -13,7 +13,7 @@ def get_ready_transactions(access_token):
     transactions = []
 
     params = {
-        "sync_status": "SYNC_READY",
+        # "sync_status": "SYNC_READY",
         "page_size": 100,
     }
 
