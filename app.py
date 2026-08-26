@@ -567,6 +567,13 @@ if tool == "Procore Payroll Exporter":
                 unsafe_allow_javascript=True,
             )
 
+            st.write(
+                "Go to Sage 5-6-2"
+                "Paste the copied table into the first cell"
+                "Ensure it looks correct"
+                "SAVE"
+            )
+
             # -----------------------------------------------------
             # MARK EXPORTED TIME COMPLETED
             # ----------------------------------------------------
