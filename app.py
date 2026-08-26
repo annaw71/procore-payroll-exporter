@@ -567,12 +567,14 @@ if tool == "Procore Payroll Exporter":
                 unsafe_allow_javascript=True,
             )
 
-            st.write(
-                "Go to Sage 5-6-2\n\n"
-                "Paste the copied table into the first cell\n\n"
-                "Ensure it looks correct\n\n"
-                "SAVE"
-            )
+            st.markdown("""
+                ### Enter Timecards into Sage
+
+                1. Go to **Sage 5-6-2**
+                2. Paste the copied table into the **first cell**
+                3. Verify that everything looks correct
+                4. Click **Save**
+                """)
 
             # -----------------------------------------------------
             # MARK EXPORTED TIME COMPLETED
