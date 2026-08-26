@@ -568,9 +568,9 @@ if tool == "Procore Payroll Exporter":
             )
 
             st.write(
-                "Go to Sage 5-6-2"
-                "Paste the copied table into the first cell"
-                "Ensure it looks correct"
+                "Go to Sage 5-6-2\n"
+                "Paste the copied table into the first cell\n"
+                "Ensure it looks correct\n"
                 "SAVE"
             )
 
