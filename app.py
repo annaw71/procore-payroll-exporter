@@ -27,7 +27,7 @@ from sage_formatter import (
 )
 
 from ramp_auth import get_ramp_access_token, get_accounting_connection
-from ramp import get_ready_transactions
+from ramp import get_ready_transactions, mark_transactions_exported
 from ramp_formatter import format_ramp_transactions
 
 # SELECTOR
@@ -637,6 +637,10 @@ elif tool == "Ramp Transactions Exporter":
 
     st.write("Export card transactions currently marked Ready to Export in Ramp.")
 
+    # ============================================================
+    # LOAD READY TRANSACTIONS
+    # ============================================================
+
     if st.button("Load Ready Transactions"):
 
         try:
@@ -648,73 +652,120 @@ elif tool == "Ramp Transactions Exporter":
 
             transactions = get_ready_transactions(access_token)
 
-            # with st.expander("View Raw Ramp Data"):
-            # st.json(transactions)
+            # Store these so they survive Streamlit reruns
+            st.session_state["ramp_access_token"] = access_token
+            st.session_state["ramp_transactions"] = transactions
 
-            if not transactions:
-
-                st.success("There are currently no card transactions to export.")
-
+            if transactions:
+                st.session_state["ramp_df"] = format_ramp_transactions(transactions)
             else:
+                st.session_state.pop("ramp_df", None)
 
-                df = format_ramp_transactions(transactions)
+            st.rerun()
 
-                st.success(f"{len(df)} transactions ready to export.")
+        except Exception as e:
 
-                st.dataframe(
-                    df,
-                    use_container_width=True,
-                )
+            st.error(f"Could not load Ramp transactions: {e}")
 
-                sage_clipboard_text = df.to_csv(sep="\t", index=False, header=False)
-                sage_copy_json = json.dumps(sage_clipboard_text)
-                row_count = len(df)
+    # ============================================================
+    # DISPLAY LOADED TRANSACTIONS
+    # ============================================================
 
-                st.html(
-                    f"""
-                    <button
-                        id="copy-ramp-sage-button"
-                        style="
-                            padding: 0.5rem 0.9rem;
-                            font-size: 1rem;
-                            cursor: pointer;
-                            border-radius: 0.5rem;
-                            border: 1px solid #ccc;
-                        "
-                    >
-                        Copy Table for Sage
-                    </button>
+    if "ramp_transactions" in st.session_state:
 
-                    <span
-                        id="copy-ramp-sage-status"
-                        style="margin-left: 10px;"
-                    ></span>
+        transactions = st.session_state["ramp_transactions"]
 
-                    <script>
-                        const button =
-                            document.getElementById("copy-ramp-sage-button");
+        if not transactions:
 
-                        const status =
-                            document.getElementById("copy-ramp-sage-status");
+            st.success("There are currently no card transactions to export.")
 
-                        const text = {sage_copy_json};
+        else:
 
-                        button.addEventListener("click", async () => {{
+            df = st.session_state["ramp_df"]
+
+            st.success(f"{len(transactions)} Ramp transactions ready to export.")
+
+            st.dataframe(
+                df,
+                use_container_width=True,
+            )
+
+            # ====================================================
+            # COPY TO SAGE
+            # ====================================================
+
+            sage_clipboard_text = df.to_csv(
+                sep="\t",
+                index=False,
+                header=False,
+            )
+
+            sage_copy_json = json.dumps(sage_clipboard_text)
+            row_count = len(df)
+
+            st.html(
+                f"""
+                <button
+                    id="copy-ramp-sage-button"
+                    style="
+                        padding: 0.5rem 0.9rem;
+                        font-size: 1rem;
+                        cursor: pointer;
+                        border-radius: 0.5rem;
+                        border: 1px solid #ccc;
+                    "
+                >
+                    Copy Table for Sage
+                </button>
+
+                <span
+                    id="copy-ramp-sage-status"
+                    style="margin-left: 10px;"
+                ></span>
+
+                <script>
+                    const button =
+                        document.getElementById(
+                            "copy-ramp-sage-button"
+                        );
+
+                    const status =
+                        document.getElementById(
+                            "copy-ramp-sage-status"
+                        );
+
+                    const text = {sage_copy_json};
+
+                    button.addEventListener(
+                        "click",
+                        async () => {{
+
                             try {{
+
                                 if (
                                     navigator.clipboard &&
                                     window.isSecureContext
                                 ) {{
-                                    await navigator.clipboard.writeText(text);
+
+                                    await navigator.clipboard.writeText(
+                                        text
+                                    );
+
                                 }} else {{
+
                                     const textarea =
-                                        document.createElement("textarea");
+                                        document.createElement(
+                                            "textarea"
+                                        );
 
                                     textarea.value = text;
+
                                     textarea.style.position = "fixed";
                                     textarea.style.left = "-9999px";
 
-                                    document.body.appendChild(textarea);
+                                    document.body.appendChild(
+                                        textarea
+                                    );
 
                                     textarea.focus();
                                     textarea.select();
@@ -722,7 +773,9 @@ elif tool == "Ramp Transactions Exporter":
                                     const copied =
                                         document.execCommand("copy");
 
-                                    document.body.removeChild(textarea);
+                                    document.body.removeChild(
+                                        textarea
+                                    );
 
                                     if (!copied) {{
                                         throw new Error(
@@ -737,31 +790,102 @@ elif tool == "Ramp Transactions Exporter":
                                 status.innerText = "";
 
                             }} catch (error) {{
+
                                 console.error(error);
 
                                 status.innerText =
                                     "❌ Clipboard blocked by browser.";
                             }}
-                        }});
-                    </script>
-                    """,
-                    unsafe_allow_javascript=True,
-                )
+                        }}
+                    );
+                </script>
+                """,
+                unsafe_allow_javascript=True,
+            )
 
-                csv = df.to_csv(index=False).encode("utf-8")
+            # ====================================================
+            # SAGE INSTRUCTIONS
+            # ====================================================
 
-                st.download_button(
-                    label="Optional CSV Download",
-                    data=csv,
-                    file_name="ramp_ready_transactions.csv",
-                    mime="text/csv",
-                )
+            st.markdown("""
+                ### Enter Transactions into Sage
 
-        except Exception as e:
+                1. Click **Copy Table for Sage**
+                2. Paste the transactions into Sage
+                3. Verify the transactions
+                4. Save them in Sage
+                5. Once saved, click **Mark Transactions as Exported in Ramp**
+                """)
 
-            st.error(f"Could not load Ramp transactions: {e}")
+            # ====================================================
+            # MARK EXPORTED IN RAMP
+            # ====================================================
 
-        # connection = get_accounting_connection(access_token)
+            st.divider()
 
-        # st.write("Accounting connection:")
-        # st.json(connection)
+            st.warning(
+                "Only click the button below after the transactions "
+                "have been successfully saved in Sage."
+            )
+
+            if st.button(
+                "Mark Transactions as Exported in Ramp",
+                type="primary",
+            ):
+
+                try:
+
+                    # Get a fresh token in case the old one expired
+                    access_token = get_ramp_access_token(
+                        st.secrets["RAMP_CLIENT_ID"],
+                        st.secrets["RAMP_CLIENT_SECRET"],
+                    )
+
+                    result = mark_transactions_exported(
+                        access_token,
+                        transactions,
+                    )
+
+                    st.success(
+                        f"{len(transactions)} Ramp transaction(s) "
+                        "marked as exported."
+                    )
+
+                    # Clear old transactions so they disappear
+                    st.session_state.pop(
+                        "ramp_transactions",
+                        None,
+                    )
+
+                    st.session_state.pop(
+                        "ramp_df",
+                        None,
+                    )
+
+                    st.session_state.pop(
+                        "ramp_access_token",
+                        None,
+                    )
+
+                    st.rerun()
+
+                except Exception as e:
+
+                    st.error("Could not mark the transactions as exported " "in Ramp.")
+
+                    st.code(str(e))
+
+            # ====================================================
+            # CSV DOWNLOAD
+            # ====================================================
+
+            st.divider()
+
+            csv = df.to_csv(index=False).encode("utf-8")
+
+            st.download_button(
+                label="Optional CSV Download",
+                data=csv,
+                file_name="ramp_ready_transactions.csv",
+                mime="text/csv",
+            )

@@ -17,7 +17,7 @@ def get_ramp_access_token(client_id, client_secret):
 
     data = {
         "grant_type": "client_credentials",
-        "scope": "transactions:read accounting:read",
+        "scope": "transactions:read accounting:read accounting:write",
     }
 
     response = requests.post(
