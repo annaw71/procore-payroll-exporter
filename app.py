@@ -814,7 +814,7 @@ elif tool == "Ramp Transactions Exporter":
                 2. Paste the transactions into Sage
                 3. Verify the transactions
                 4. Save them in Sage
-                5. Once saved, mark the transactions as exported in Ramp***
+                5. Once saved, mark the transactions as exported in Ramp
                 """)
 
             # ====================================================
