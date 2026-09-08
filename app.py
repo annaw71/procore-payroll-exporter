@@ -638,6 +638,26 @@ elif tool == "Ramp Transactions Exporter":
     st.write("Export card transactions currently marked Ready to Export in Ramp.")
 
     # ============================================================
+    # CHECK ACCOUNTING CONNECTION
+    # ============================================================
+
+    if st.button("Check Ramp Accounting Connection"):
+
+        try:
+            access_token = get_ramp_access_token(
+                st.secrets["RAMP_CLIENT_ID"],
+                st.secrets["RAMP_CLIENT_SECRET"],
+            )
+
+            connection = get_accounting_connection(access_token)
+
+            st.write("Accounting Connection:")
+            st.json(connection)
+
+        except Exception as e:
+            st.error(f"Could not check Ramp accounting connection: {e}")
+
+    # ============================================================
     # LOAD READY TRANSACTIONS
     # ============================================================
 
